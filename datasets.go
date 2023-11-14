@@ -177,8 +177,8 @@ func Create(name string, args *CreateArgs) (*ListingOutput, error) {
 
 	options = append(options, name)
 
-	_, _, err := execZaouCmd("dtouch", options)
-	if err != nil {
+	_, rc, err := execZaouCmd("dtouch", options)
+	if rc >= 8 {
 		return nil, err
 	}
 	if out, err := Listing(name, nil); err != nil {
@@ -237,6 +237,7 @@ func FindMember(member string, concatentation string) (*string, error) {
 	if err != nil {
 		return nil, err
 	}
+	stdout = strings.TrimRight(stdout, "\n")
 	return &stdout, nil
 }
 
@@ -502,6 +503,7 @@ func Read(dataset string, args *ReadArgs) (*string, error) {
 		return nil, err
 	}
 
+	stdout = strings.TrimRight(stdout, "\n")
 	return &stdout, nil
 }
 
@@ -558,7 +560,7 @@ func Hlq() (*string, error) {
 		return nil, err
 	}
 
-	stdout = stdout[:len(stdout)-1]
+	stdout = strings.TrimRight(stdout, "\n")
 	return &stdout, nil
 }
 
@@ -572,7 +574,7 @@ func TmpName(hlq *string) (*string, error) {
 		return nil, err
 	}
 
-	stdout = stdout[:len(stdout)-1]
+	stdout = strings.TrimRight(stdout, "\n")
 	return &stdout, nil
 }
 
