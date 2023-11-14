@@ -31,15 +31,15 @@ func ParseLine(line string) []string {
 	return strings.Fields(line)
 }
 
-func ParseListingValues(parsedLine []string) (ListingOutput, error) {
+func ParseListingValues(parsedLine []string) (Dataset, error) {
 	lrecl, err := strconv.Atoi(parsedLine[4])
 	if err != nil {
-		return ListingOutput{}, err
+		return Dataset{}, err
 	}
 
 	blockSize, err := strconv.Atoi(parsedLine[5])
 	if err != nil {
-		return ListingOutput{}, err
+		return Dataset{}, err
 	}
 
 	var usedSpace *int
@@ -48,7 +48,7 @@ func ParseListingValues(parsedLine []string) (ListingOutput, error) {
 		if parsedLine[7] == "??" {
 			usedSpace = nil
 		} else {
-			return ListingOutput{}, err
+			return Dataset{}, err
 		}
 	} else {
 		usedSpace = &usedSpaceTmp
@@ -56,10 +56,10 @@ func ParseListingValues(parsedLine []string) (ListingOutput, error) {
 
 	totalSpace, err := strconv.Atoi(parsedLine[8])
 	if err != nil {
-		return ListingOutput{}, err
+		return Dataset{}, err
 	}
 
-	return ListingOutput{
+	return Dataset{
 		Name:           parsedLine[0],
 		LastReferenced: parsedLine[1],
 		Dsorg:          parsedLine[2],

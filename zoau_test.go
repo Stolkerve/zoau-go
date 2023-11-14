@@ -433,7 +433,7 @@ BGYSC2006I Unable to obtain dataset information for dataset Z38816.P0397638.T052
 	expectedParsedValues := []string{
 		"Z38816.LOAD", "2023/11/06", "po", "U", "0", "4096", "ZXPM01", "??", "283320",
 	}
-	expectedOutput := zoau.ListingOutput{
+	expectedOutput := zoau.Dataset{
 		Name:           "Z38816.LOAD",
 		LastReferenced: "2023/11/06",
 		Dsorg:          "po",

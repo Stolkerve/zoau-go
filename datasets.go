@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+// ZOAU dmod function to be used by zos_blockinfile Ansible module
 func BlockInFile(dataset string, args *BlockInFileArgs) error {
 	options := []string{"-b"}
 	state := true
@@ -85,6 +86,7 @@ func BlockInFile(dataset string, args *BlockInFileArgs) error {
 	return nil
 }
 
+// Compare two datasets, output the ISRSUPC output.
 func Compare(source string, target string, args *CompareArgs) (*string, error) {
 	options := make([]string, 0)
 	if args != nil {
@@ -110,6 +112,7 @@ func Compare(source string, target string, args *CompareArgs) (*string, error) {
 	return nil, err
 }
 
+// Copy a z/OS source (dataset, HFS file) to a z/OS target.
 func Copy(source string, target string, args *CopyArgs) error {
 	options := make([]string, 0)
 	if args != nil {
@@ -136,7 +139,8 @@ func Copy(source string, target string, args *CopyArgs) error {
 	return err
 }
 
-func Create(name string, args *CreateArgs) (*ListingOutput, error) {
+// Create a z/OS dataset.
+func Create(name string, args *CreateArgs) (*Dataset, error) {
 	options := make([]string, 0)
 
 	if args != nil {
@@ -188,8 +192,9 @@ func Create(name string, args *CreateArgs) (*ListingOutput, error) {
 	}
 }
 
-// false if dataset specified by dataset pattern does not exist
-// otherwise task completed without error
+// Delete a z/OS dataset.
+// Return false if dataset specified by dataset pattern does not exist.
+// Otherwise task completed without error.
 func Delete(datasets ...string) (bool, error) {
 	_, returnCode, err := execZaouCmd("drm", datasets)
 
@@ -204,8 +209,9 @@ func Delete(datasets ...string) (bool, error) {
 	return true, nil
 }
 
-// false if dataset specified by dataset pattern does not exist
-// otherwise task completed without error
+// Delete members contained in a dataset.
+// Return false if dataset specified by dataset pattern does not exist.
+// Otherwise task completed without error.
 func DeleteMember(pattern string) (bool, error) {
 	options := make([]string, 0)
 	options = append(options, pattern)
@@ -223,6 +229,7 @@ func DeleteMember(pattern string) (bool, error) {
 	return true, nil
 }
 
+// Check whether or not a dataset exists.
 func Exist(dataset string) (bool, error) {
 	if out, err := Listing(dataset, nil); err != nil {
 		return false, err
@@ -231,6 +238,8 @@ func Exist(dataset string) (bool, error) {
 	}
 }
 
+// Find dataset that contains member within a concatenation. Returns the first dataset that contains member.
+// Return the dataset containing the member.
 func FindMember(member string, concatentation string) (*string, error) {
 	options := []string{member, concatentation}
 	stdout, _, err := execZaouCmd("dwhence", options)
@@ -241,6 +250,7 @@ func FindMember(member string, concatentation string) (*string, error) {
 	return &stdout, nil
 }
 
+// Replace text within a dataset.
 func FindReplace(dataset string, find string, replace string) error {
 	options := []string{
 		fmt.Sprintf(`"s/%s/%s/g"`, find, replace),
@@ -250,6 +260,7 @@ func FindReplace(dataset string, find string, replace string) error {
 	return err
 }
 
+// ZOAU dsed function to be used by zos_lineinfile Ansible module.
 func LineInFile(dataset string, line string, args *LineInFileArgs) error {
 	options := make([]string, 0)
 	state := true
@@ -269,10 +280,6 @@ func LineInFile(dataset string, line string, args *LineInFileArgs) error {
 
 	if args.Encoding != nil {
 		options = append(options, "-c", *args.Encoding)
-	}
-
-	if args.Backref {
-		options = append(options, "-r")
 	}
 
 	if args.FirstMatch {
@@ -402,6 +409,7 @@ func LineInFile(dataset string, line string, args *LineInFileArgs) error {
 	return err
 }
 
+// Get a list of members from a dataset.
 func ListMembers(pattern string) ([]string, error) {
 	options := []string{pattern}
 	stdout, returnCode, err := execZaouCmd("mls", options)
@@ -416,7 +424,8 @@ func ListMembers(pattern string) ([]string, error) {
 	return strings.Split(stdout, "\n"), nil
 }
 
-func Listing(pattern string, args *ListingArgs) ([]ListingOutput, error) {
+// Returns a listing of the datasets matching the supplied pattern.
+func Listing(pattern string, args *ListingArgs) ([]Dataset, error) {
 	options := []string{"-l", "-u", "-s", "-b"}
 	if args != nil {
 		if args.NameOnly {
@@ -433,20 +442,20 @@ func Listing(pattern string, args *ListingArgs) ([]ListingOutput, error) {
 
 	stdout, returnCode, err := execZaouCmd("dls", options)
 	if returnCode == 1 {
-		return []ListingOutput{}, nil
+		return []Dataset{}, nil
 	}
 
 	if err != nil {
 		return nil, err
 	}
 
-	output := make([]ListingOutput, 0)
+	output := make([]Dataset, 0)
 
 	unparsedLines := strings.Split(stdout, "\n")
 	for _, unparsedLine := range unparsedLines {
 		parsedLine := ParseLine(unparsedLine)
 		if len(parsedLine) == 1 {
-			output = append(output, ListingOutput{
+			output = append(output, Dataset{
 				Name: parsedLine[0],
 			})
 			continue
@@ -470,6 +479,7 @@ func Listing(pattern string, args *ListingArgs) ([]ListingOutput, error) {
 	return output, nil
 }
 
+// Move (rename) a dataset.
 func Move(source string, target string) error {
 	options := []string{source, target}
 
@@ -477,6 +487,7 @@ func Move(source string, target string) error {
 	return err
 }
 
+// Move (rename) a member.
 func MoveMember(dataset string, source string, target string) error {
 	options := []string{dataset, source, target}
 
@@ -484,6 +495,7 @@ func MoveMember(dataset string, source string, target string) error {
 	return err
 }
 
+// Get the string contents of a dataset.
 func Read(dataset string, args *ReadArgs) (*string, error) {
 	options := make([]string, 0)
 	if args != nil {
@@ -507,6 +519,8 @@ func Read(dataset string, args *ReadArgs) (*string, error) {
 	return &stdout, nil
 }
 
+// A function to display the head content of a non-VSAM dataset. Gets the head content of a dataset.
+// Nlines: Read the first nlines lines from the dataset.
 func ReadHead(dataset string, Nlines *uint) (*string, error) {
 	options := []string{"-n", "+1"}
 
@@ -524,6 +538,7 @@ func ReadHead(dataset string, Nlines *uint) (*string, error) {
 	return &stdout, nil
 }
 
+// Search a dataset using ISRSUPC.
 func Search(dataset string, value string, args *SearchArgs) (*string, error) {
 	options := make([]string, 0)
 	if args != nil {
@@ -554,6 +569,7 @@ func Search(dataset string, value string, args *SearchArgs) (*string, error) {
 	return &stdout, nil
 }
 
+// Return the high level qualifier (HLQ) of the active TSO environment
 func Hlq() (*string, error) {
 	stdout, _, err := execZaouCmd("hlq", nil)
 	if err != nil {
@@ -564,6 +580,8 @@ func Hlq() (*string, error) {
 	return &stdout, nil
 }
 
+// Creates a temporary dataset name.
+// hlq:     The HLQ of the temporary dataset name.
 func TmpName(hlq *string) (*string, error) {
 	options := make([]string, 0)
 	if hlq != nil {
@@ -578,6 +596,7 @@ func TmpName(hlq *string) (*string, error) {
 	return &stdout, nil
 }
 
+// Unzips a .dzp file.
 func UnZip(file string, hlq string, args *UnZipArgs) error {
 	options := make([]string, 0)
 	if args != nil {
@@ -626,6 +645,7 @@ func UnZip(file string, hlq string, args *UnZipArgs) error {
 	return err
 }
 
+// Write content to a z/OS data set.
 func Write(dataset string, content string, _append bool) error {
 	options := make([]string, 0)
 	if _append {
@@ -636,6 +656,7 @@ func Write(dataset string, content string, _append bool) error {
 	return err
 }
 
+// Zip datasets into an HFS file.
 func Zip(file string, target string, args *ZipArgs) error {
 	options := make([]string, 0)
 	if args != nil {
