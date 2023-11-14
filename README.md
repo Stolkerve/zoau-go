@@ -1,4 +1,5 @@
 # zoau - A Go module for Z Open Automation Utilities (ZOAU)
+[![Go Reference](https://pkg.go.dev/badge/github.com/Stolkerve/zoau-go.svg)](https://pkg.go.dev/github.com/Stolkerve/zoau-go)
 
 ## Table of Contents
 
