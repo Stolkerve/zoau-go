@@ -2,6 +2,7 @@ package zoau
 
 import (
 	"errors"
+	"fmt"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -14,6 +15,18 @@ func String(v string) *string {
 
 func Uint(v uint) *uint {
 	return &v
+}
+
+func parseUniversalArgs(args Args) []string {
+	options := make([]string, 0)
+	if args.Debug {
+		options = append(options, "-d")
+	}
+	if args.Verbose {
+		options = append(options, "-v")
+	}
+
+	return options
 }
 
 func execZaouCmd(proc string, params []string) (string, int, error) {
@@ -70,4 +83,8 @@ func ParseListingValues(parsedLine []string) (Dataset, error) {
 		UsedSpace:      usedSpace,
 		TotalSpace:     totalSpace,
 	}, nil
+}
+
+func appendMvscmdString(args *string, variableName string, variable string) {
+	*args += fmt.Sprintf(",%s=%s", variableName, variable)
 }

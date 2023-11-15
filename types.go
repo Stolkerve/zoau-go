@@ -1,5 +1,19 @@
 package zoau
 
+import (
+	"fmt"
+	"strconv"
+)
+
+type Args struct {
+	Verbose bool
+	Debug   bool
+}
+
+/*
+ *	Datasets Types
+ */
+
 type BlockInFileArgs struct {
 	// The line(s) to insert inside the marker lines separated by '\\n'. (e.g. "line 1\\nline 2\\nline 3")
 	Block *string
@@ -310,7 +324,170 @@ type ZipArgs struct {
 
 	// Specifies a particular volume should be used when creating temporary and target datasets.
 	DestVolume *string
+	SrcVolume  *string
+}
 
-	//
-	SrcVolume *string
+/*
+ *	MSVCMD Types
+ */
+
+type DDStatement struct {
+	Name       string
+	Definition DataDefinition
+}
+
+type DataDefinition interface {
+	buildArgsString() string
+}
+
+type ValueDefinition struct {
+	V string
+}
+
+func (s *ValueDefinition) buildArgsString() string {
+	return s.V
+}
+
+// Definition of an HFS file
+type FileDefinition struct {
+	// Full path to the HFS file
+	PathName            string
+	NormalDisposition   *string
+	AbnormalDisposition *string
+	PathMode            *string
+	StatusGroup         *string
+	FileData            *string
+	RecordLength        *string
+	BlockSize           *string
+	RecordFormat        *string
+}
+
+func (f *FileDefinition) buildArgsString() string {
+	args := f.PathName
+	if f.NormalDisposition != nil {
+		appendMvscmdString(&args, "normdisp", *f.NormalDisposition)
+	}
+	if f.AbnormalDisposition != nil {
+		appendMvscmdString(&args, "abnormdisp", *f.AbnormalDisposition)
+	}
+	if f.NormalDisposition != nil {
+		appendMvscmdString(&args, "pathmode", *f.PathMode)
+	}
+	if f.NormalDisposition != nil {
+		appendMvscmdString(&args, "statusgroup", *f.StatusGroup)
+	}
+	if f.NormalDisposition != nil {
+		appendMvscmdString(&args, "filedata", *f.FileData)
+	}
+	if f.NormalDisposition != nil {
+		appendMvscmdString(&args, "lrecl", *f.RecordLength)
+	}
+	if f.NormalDisposition != nil {
+		appendMvscmdString(&args, "blksize", *f.BlockSize)
+	}
+	if f.NormalDisposition != nil {
+		appendMvscmdString(&args, "recfm", *f.RecordFormat)
+	}
+
+	return args
+}
+
+type DatasetDefinition struct {
+	DatasetName            string
+	Disposition            *string
+	Type                   *string
+	Primary                *uint
+	PrimaryUnit            *string
+	Secondary              *uint
+	SecondaryUnit          *string
+	NormalDisposition      *string
+	AbnormalDisposition    *string
+	ConditionalDisposition *string
+	BlockSize              *string
+	RecordFormat           *string
+	RecordLength           *string
+	StorageClass           *string
+	DataClass              *string
+	ManagementClass        *string
+	KeyLength              *string
+	KeyOffset              *string
+	Volumes                *string
+	DatasetKeyLabel        *string
+	KeyLabel1              *string
+	KeyEncoding1           *string
+	KeyLabel2              *string
+	KeyEncoding2           *string
+}
+
+func (f *DatasetDefinition) buildArgsString() string {
+	args := f.DatasetName
+	if f.Disposition != nil {
+		args += fmt.Sprintf(",%s", *f.Disposition)
+	}
+	if f.Type != nil {
+		appendMvscmdString(&args, "type", *f.Type)
+	}
+	if f.Primary != nil {
+		appendMvscmdString(&args, "primary", strconv.FormatUint(uint64(*f.Primary), 10))
+		if f.PrimaryUnit != nil {
+			args += *f.PrimaryUnit
+		}
+	}
+	if f.Secondary != nil {
+		appendMvscmdString(&args, "secondary", strconv.FormatUint(uint64(*f.Secondary), 10))
+		if f.SecondaryUnit != nil {
+			args += *f.SecondaryUnit
+		}
+	}
+
+	if f.NormalDisposition != nil {
+		appendMvscmdString(&args, "normdisp", *f.NormalDisposition)
+	}
+	if f.AbnormalDisposition != nil {
+		appendMvscmdString(&args, "abnormdisp", *f.AbnormalDisposition)
+	}
+	if f.BlockSize != nil {
+		appendMvscmdString(&args, "blksize", *f.BlockSize)
+	}
+	if f.RecordFormat != nil {
+		appendMvscmdString(&args, "recfm", *f.RecordFormat)
+	}
+	if f.RecordLength != nil {
+		appendMvscmdString(&args, "lrecl", *f.RecordLength)
+	}
+	if f.StorageClass != nil {
+		appendMvscmdString(&args, "storclas", *f.StorageClass)
+	}
+	if f.DataClass != nil {
+		appendMvscmdString(&args, "dataclas", *f.DataClass)
+	}
+	if f.ManagementClass != nil {
+		appendMvscmdString(&args, "mgmtclas", *f.ManagementClass)
+	}
+	if f.KeyLength != nil {
+		appendMvscmdString(&args, "keylen", *f.KeyLength)
+	}
+	if f.KeyOffset != nil {
+		appendMvscmdString(&args, "keyoffset", *f.KeyOffset)
+	}
+	if f.Volumes != nil {
+		appendMvscmdString(&args, "volumes", *f.Volumes)
+	}
+	if f.DatasetKeyLabel != nil {
+		appendMvscmdString(&args, "dskeylbl", *f.DatasetKeyLabel)
+	}
+	if f.KeyLabel1 != nil {
+		appendMvscmdString(&args, "keylab1", *f.KeyLabel1)
+	}
+	if f.KeyLabel2 != nil {
+		appendMvscmdString(&args, "keylab2", *f.KeyLabel2)
+	}
+	if f.KeyEncoding1 != nil {
+		appendMvscmdString(&args, "keycd1", *f.KeyEncoding1)
+	}
+	if f.KeyEncoding2 != nil {
+		appendMvscmdString(&args, "keycd2", *f.KeyEncoding2)
+	}
+
+	return args
 }
