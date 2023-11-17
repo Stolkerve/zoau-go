@@ -151,7 +151,8 @@ func TestHlqTempName(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	id := os.Getenv("USER")
-	dsns := []string{id + ".ZOAU3A",
+	dsns := []string{
+		id + ".ZOAU3A",
 		id + ".ZOAU3B",
 		id + ".ZOAU3C",
 		id + ".ZOAU3D",
@@ -176,7 +177,7 @@ func TestDelete(t *testing.T) {
 	}
 
 	t.Logf("Listing %s", dsnPattern)
-	if res, err := zoau.Listing(dsnPattern, nil); err != nil {
+	if res, err := zoau.ListingDataset(dsnPattern, nil); err != nil {
 		t.Fatalf("Fail to listing %s", dsnPattern)
 	} else {
 		if len(res) != len(dsns) {
@@ -196,7 +197,7 @@ func TestDelete(t *testing.T) {
 	}
 
 	t.Logf("Listing %s", dsnPattern)
-	if res, err := zoau.Listing(dsnPattern, nil); err != nil {
+	if res, err := zoau.ListingDataset(dsnPattern, nil); err != nil {
 		t.Fatalf("Fail to listing %s", dsnPattern)
 	} else {
 		if len(res) != len(dsns[1:]) {
@@ -215,7 +216,7 @@ func TestDelete(t *testing.T) {
 		t.Fatalf("Fail to delete %s", dsnPattern)
 	}
 
-	if res, err := zoau.Listing(dsnPattern, nil); err != nil {
+	if res, err := zoau.ListingDataset(dsnPattern, nil); err != nil {
 		t.Fatalf("Fail to listing %s", dsnPattern)
 	} else {
 		if len(res) != 0 {

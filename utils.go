@@ -30,7 +30,7 @@ func parseUniversalArgs(args Args) []string {
 }
 
 func execZaouCmd(proc string, params []string) (string, int, error) {
-	//fmt.Println(proc, params)
+	// fmt.Println(proc, params)
 	cmd := exec.Command(proc, params...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {

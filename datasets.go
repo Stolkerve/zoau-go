@@ -185,7 +185,7 @@ func Create(name string, args *CreateArgs) (*Dataset, error) {
 	if rc >= 8 {
 		return nil, err
 	}
-	if out, err := Listing(name, nil); err != nil {
+	if out, err := ListingDataset(name, nil); err != nil {
 		return nil, err
 	} else {
 		return &out[0], nil
@@ -231,7 +231,7 @@ func DeleteMember(pattern string) (bool, error) {
 
 // Check whether or not a dataset exists.
 func Exist(dataset string) (bool, error) {
-	if out, err := Listing(dataset, nil); err != nil {
+	if out, err := ListingDataset(dataset, nil); err != nil {
 		return false, err
 	} else {
 		return len(out) > 0, nil
@@ -338,7 +338,6 @@ func LineInFile(dataset string, line string, args *LineInFileArgs) error {
 					dataset,
 				)
 			}
-
 		} else {
 			if args.InsAft != nil {
 				if *args.InsAft == "EOF" {
@@ -402,7 +401,6 @@ func LineInFile(dataset string, line string, args *LineInFileArgs) error {
 				dataset,
 			)
 		}
-
 	}
 
 	_, _, err := execZaouCmd("dsed", options)
@@ -425,7 +423,7 @@ func ListMembers(pattern string) ([]string, error) {
 }
 
 // Returns a listing of the datasets matching the supplied pattern.
-func Listing(pattern string, args *ListingArgs) ([]Dataset, error) {
+func ListingDataset(pattern string, args *ListingArgs) ([]Dataset, error) {
 	options := []string{"-l", "-u", "-s", "-b"}
 	if args != nil {
 		if args.NameOnly {
