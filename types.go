@@ -491,3 +491,60 @@ func (f *DatasetDefinition) buildArgsString() string {
 
 	return args
 }
+
+/*
+ * Z/System
+ */
+
+type ApfOpt = uint
+
+const (
+	OPT_ADD ApfOpt = iota
+	OPT_DEL
+	OPT_SET_DYNAMIC
+	OPT_SET_STATIC
+	OPT_CHECK_FORMAT
+	OPT_LIST
+)
+
+func ApfOptString(o ApfOpt) string {
+	switch o {
+	case OPT_ADD:
+		return "OPP_ADD"
+	case OPT_DEL:
+		return "OPP_DEL"
+	case OPT_SET_STATIC:
+		return "OPP_SET_STATIC"
+	case OPT_SET_DYNAMIC:
+		return "OPP_SET_DYNAMIC"
+	case OPT_CHECK_FORMAT:
+		return "OPP_CHECK_FORMAT"
+	case OPT_LIST:
+		return "OPP_LIST"
+	default:
+		return fmt.Sprintf("%d", int(o))
+	}
+}
+
+type ApfPersistent struct {
+	AddDs  *string
+	DelDs  *string
+	Market *string
+}
+
+type ApfOptData struct {
+	Opt     ApfOpt
+	DsName  string
+	Volumen *string
+	sms     bool
+}
+
+type ApfArgs struct {
+	Opt          *ApfOpt
+	DsName       *string
+	Volumen      *string
+	Sms          bool
+	ForceDynamic bool
+	Persistent   *ApfPersistent
+	Batch        []ApfOptData
+}
