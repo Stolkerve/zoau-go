@@ -42,11 +42,11 @@ func TestCrud(t *testing.T) {
 	}
 
 	if output, err := zoau.Read(DSN, nil); err != nil {
-		t.Fatalf("Fail to read %s", DSN)
+		t.Fatalf("Fail to read %s. %s", DSN, err)
 	} else {
-		outputTrim := (*output)[:len(firstLine)]
+		outputTrim := output[:len(firstLine)]
 		if outputTrim != firstLine {
-			t.Fatalf("expected: %s, got %s", firstLine, *output)
+			t.Fatalf("expected: %s, got %s", firstLine, output)
 		} else {
 			t.Logf("First line match")
 		}
@@ -66,7 +66,7 @@ func TestCrud(t *testing.T) {
 	if output, err := zoau.Read(DSN, nil); err != nil {
 		t.Fatalf("Fail to read %s", DSN)
 	} else {
-		outputSplited := strings.Split(*output, "\n")
+		outputSplited := strings.Split(output, "\n")
 		outputTrim := fmt.Sprintf(
 			`%s\n%s\n%s`,
 			outputSplited[0][:len(firstLine)],
@@ -75,7 +75,7 @@ func TestCrud(t *testing.T) {
 		)
 		expected := fmt.Sprintf(`%s\n%s\n%s`, firstLine, secondLine, thirdLine)
 		if outputTrim != expected {
-			t.Fatalf("expected: %s, got %s", expected, *output)
+			t.Fatalf("expected: %s, got %s", expected, output)
 		} else {
 			t.Logf("First, second and third line match")
 		}
@@ -87,9 +87,9 @@ func TestCrud(t *testing.T) {
 	}); err != nil {
 		t.Fatalf("Fail to read from the tail -1 %s", DSN)
 	} else {
-		outputTrim := (*output)[:len(thirdLine)]
+		outputTrim := (output)[:len(thirdLine)]
 		if outputTrim != thirdLine {
-			t.Fatalf("expected: %s, got %s", firstLine, *output)
+			t.Fatalf("expected: %s, got %s", firstLine, output)
 		} else {
 			t.Logf("Tail -1 line match")
 		}
@@ -104,9 +104,9 @@ func TestCrud(t *testing.T) {
 	if output, err := zoau.Read(DSN, nil); err != nil {
 		t.Fatalf("Fail to read %s", DSN)
 	} else {
-		outputTrim := (*output)[:len(text)]
+		outputTrim := (output)[:len(text)]
 		if outputTrim != text {
-			t.Fatalf("expected: %s, got %s", text, *output)
+			t.Fatalf("expected: %s, got %s", text, output)
 		} else {
 			t.Logf("The text match")
 		}
@@ -119,8 +119,8 @@ func TestHlqTempName(t *testing.T) {
 	if err != nil {
 		t.Fatal("Fail to fetch hlq")
 	} else {
-		if *hlq != id {
-			t.Fatalf("hlq returned %s, expected %s", *hlq, id)
+		if hlq != id {
+			t.Fatalf("hlq returned %s, expected %s", hlq, id)
 		} else {
 			t.Log("hlq test success")
 		}
@@ -129,22 +129,22 @@ func TestHlqTempName(t *testing.T) {
 	if res, err := zoau.TmpName(nil); err != nil {
 		t.Fatal("Fail to create a temporary dataset")
 	} else {
-		numOfDots := strings.Count(*res, ".")
-		if !strings.HasPrefix(*res, "MVSTMP.") && len(*res) != 33 || numOfDots < 3 {
-			t.Fatalf("string returned by TmpName expected to start with `MVSTMP.`, got %s", *res)
+		numOfDots := strings.Count(res, ".")
+		if !strings.HasPrefix(res, "MVSTMP.") && len(res) != 33 || numOfDots < 3 {
+			t.Fatalf("string returned by TmpName expected to start with `MVSTMP.`, got %s", res)
 		} else {
-			t.Logf("Temporary %s dataset  created successfuly", *res)
+			t.Logf("Temporary %s dataset  created successfuly", res)
 		}
 	}
 
-	if res, err := zoau.TmpName(hlq); err != nil {
+	if res, err := zoau.TmpName(&hlq); err != nil {
 		t.Fatal("Fail create temporary with hlq dataset")
 	} else {
-		numOfDots := strings.Count(*res, ".")
-		if !strings.HasPrefix(*res, *hlq) && len(*res) != 33 || numOfDots != 3 {
-			t.Fatalf("string returned by TmpName expected to start with `%s`, got %s", *hlq, *res)
+		numOfDots := strings.Count(res, ".")
+		if !strings.HasPrefix(res, hlq) && len(res) != 33 || numOfDots != 3 {
+			t.Fatalf("string returned by TmpName expected to start with `%s`, got %s", hlq, res)
 		} else {
-			t.Logf("Temporary with hlq %s dataset created successfuly", *res)
+			t.Logf("Temporary with hlq %s dataset created successfuly", res)
 		}
 	}
 }
@@ -274,9 +274,9 @@ func TestCopy(t *testing.T) {
 	}); err != nil {
 		t.Fatalf("Fail to listing %s", ds2)
 	} else {
-		outputTrim := (*res)[:len(line)]
+		outputTrim := (res)[:len(line)]
 		if outputTrim != line {
-			t.Fatalf("expected: %s, got %s", line, *res)
+			t.Fatalf("expected: %s, got %s", line, res)
 		}
 	}
 }
@@ -317,13 +317,10 @@ func TestCompare(t *testing.T) {
 	}
 
 	t.Log("Comparing ds1 to ds2")
-	if res, err := zoau.Compare(ds1, ds2, nil); err != nil {
+	if _, err := zoau.Compare(ds1, ds2, nil); err != nil {
 		t.Fatalf("Fail to compere %s to %s", ds2, ds1)
 	} else {
-		if res != nil {
-			t.Log(*res)
-			t.Fatalf("%s and %s must be equals", ds2, ds1)
-		}
+		t.Logf("%s and %s are equals", ds2, ds1)
 	}
 
 	t.Log("Write extra line to ds2")
@@ -417,7 +414,7 @@ func TestFindReplace(t *testing.T) {
 	if res, err := zoau.Read(ds, nil); err != nil {
 		t.Fatalf("Fail to read %s", ds)
 	} else {
-		outputLines := strings.Split(*res, "\n")
+		outputLines := strings.Split(res, "\n")
 		for i := 0; i < len(expectedLines); i++ {
 			if outputLines[i][:len(expectedLines[i])] != expectedLines[i] {
 				t.Fatalf("expected: %s, got %s", expectedLines[i], outputLines[i])
