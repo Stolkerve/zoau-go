@@ -40,6 +40,22 @@ func execZaouCmd(proc string, params []string) (string, int, error) {
 	return string(output), cmd.ProcessState.ExitCode(), nil
 }
 
+func execSimpleStringCmd(proc string, params []string) (string, error) {
+	if stdout, _, err := execZaouCmd(proc, params); err != nil {
+		return "", err
+	} else {
+		return strings.TrimRight(stdout, "\n"), nil
+	}
+}
+
+func execSimpleStringListCmd(proc string, params []string) ([]string, error) {
+	if stdout, _, err := execZaouCmd(proc, params); err != nil {
+		return nil, err
+	} else {
+		return strings.Split(stdout, "\n"), nil
+	}
+}
+
 func ParseLine(line string) []string {
 	return strings.Fields(line)
 }

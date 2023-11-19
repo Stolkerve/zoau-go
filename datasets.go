@@ -240,14 +240,8 @@ func Exist(dataset string) (bool, error) {
 
 // Find dataset that contains member within a concatenation. Returns the first dataset that contains member.
 // Return the dataset containing the member.
-func FindMember(member string, concatentation string) (*string, error) {
-	options := []string{member, concatentation}
-	stdout, _, err := execZaouCmd("dwhence", options)
-	if err != nil {
-		return nil, err
-	}
-	stdout = strings.TrimRight(stdout, "\n")
-	return &stdout, nil
+func FindMember(member string, concatentation string) (string, error) {
+	return execSimpleStringCmd("dwhence", []string{member, concatentation})
 }
 
 // Replace text within a dataset.
@@ -494,7 +488,7 @@ func MoveMember(dataset string, source string, target string) error {
 }
 
 // Get the string contents of a dataset.
-func Read(dataset string, args *ReadArgs) (*string, error) {
+func Read(dataset string, args *ReadArgs) (string, error) {
 	options := make([]string, 0)
 	if args != nil {
 		if args.FromLine != nil {
@@ -508,18 +502,12 @@ func Read(dataset string, args *ReadArgs) (*string, error) {
 
 	options = append(options, dataset)
 
-	stdout, _, err := execZaouCmd("dtail", options)
-	if err != nil {
-		return nil, err
-	}
-
-	stdout = strings.TrimRight(stdout, "\n")
-	return &stdout, nil
+	return execSimpleStringCmd("dtail", options)
 }
 
 // A function to display the head content of a non-VSAM dataset. Gets the head content of a dataset.
 // Nlines: Read the first nlines lines from the dataset.
-func ReadHead(dataset string, Nlines *uint) (*string, error) {
+func ReadHead(dataset string, Nlines *uint) (string, error) {
 	options := []string{"-n", "+1"}
 
 	options = append(options, dataset)
@@ -528,12 +516,7 @@ func ReadHead(dataset string, Nlines *uint) (*string, error) {
 		options = []string{"|", "head", "-n", fmt.Sprintf("%d", *Nlines)}
 	}
 
-	stdout, _, err := execZaouCmd("dtail", options)
-	if err != nil {
-		return nil, err
-	}
-
-	return &stdout, nil
+	return execSimpleStringCmd("dtail", options)
 }
 
 // Search a dataset using ISRSUPC.
@@ -568,30 +551,18 @@ func Search(dataset string, value string, args *SearchArgs) (*string, error) {
 }
 
 // Return the high level qualifier (HLQ) of the active TSO environment
-func Hlq() (*string, error) {
-	stdout, _, err := execZaouCmd("hlq", nil)
-	if err != nil {
-		return nil, err
-	}
-
-	stdout = strings.TrimRight(stdout, "\n")
-	return &stdout, nil
+func Hlq() (string, error) {
+	return execSimpleStringCmd("hlq", nil)
 }
 
 // Creates a temporary dataset name.
 // hlq:     The HLQ of the temporary dataset name.
-func TmpName(hlq *string) (*string, error) {
+func TmpName(hlq *string) (string, error) {
 	options := make([]string, 0)
 	if hlq != nil {
 		options = append(options, *hlq)
 	}
-	stdout, _, err := execZaouCmd("mvstmp", options)
-	if err != nil {
-		return nil, err
-	}
-
-	stdout = strings.TrimRight(stdout, "\n")
-	return &stdout, nil
+	return execSimpleStringCmd("mvstmp", options)
 }
 
 // Unzips a .dzp file.
