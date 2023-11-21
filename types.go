@@ -3,6 +3,7 @@ package zoau
 import (
 	"fmt"
 	"strconv"
+	"time"
 )
 
 type Args struct {
@@ -547,4 +548,47 @@ type ApfArgs struct {
 	ForceDynamic bool
 	Persistent   *ApfPersistent
 	Batch        []ApfOptData
+}
+
+/*
+ * Jobs types
+ */
+
+type CancelJobArgs struct {
+	JobName *string
+	Purge   bool
+	Timeout *time.Duration
+}
+
+type Job struct {
+	Id     *string
+	Name   *string
+	Owner  *string
+	Status *string
+	Rc     *string
+}
+
+type JobDDsArgs struct {
+	Owner  *string
+	Prefix *string
+}
+
+type JobDDs struct {
+	StepName string
+	Dataset  string
+	ProcStep *string
+	Format   string
+	Length   string
+	RecNum   string
+}
+
+type ReadJobOutputArgs struct {
+	Owner    *string
+	Prefix   *string
+	ProcStep *string
+}
+
+type SubmitArgs struct {
+	Wait    bool
+	Timeout *time.Duration
 }

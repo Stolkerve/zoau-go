@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // String returns a pointer value for the string value passed in.
@@ -103,4 +104,9 @@ func ParseListingValues(parsedLine []string) (Dataset, error) {
 
 func appendMvscmdString(args *string, variableName string, variable string) {
 	*args += fmt.Sprintf(",%s=%s", variableName, variable)
+}
+
+func timeOut(duration time.Duration, timeOutChan chan struct{}) {
+	time.Sleep(duration)
+	timeOutChan <- struct{}{}
 }
